@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iguala el Color</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div id="game-container">
+    <h1>¡Iguala el Color!</h1>
+    <div id="user-info">
+      <p id="welcome-message">Cargando datos del usuario...</p>
+      <img id="avatar" src="" alt="Avatar del jugador" style="display:none; width:150px; height:150px; border-radius:50%; border: 2px solid #000;" />
+    </div>
+
+    <!-- Color objetivo -->
+    <h2>Color Objetivo:</h2>
+    <div id="target-color" style="width: 150px; height: 150px; border: 2px solid #000; margin: 10px auto;"></div>
+
+    <!-- Selector de color -->
+    <label for="color-picker">Selecciona tu color:</label>
+    <input type="color" id="color-picker" />
+
+    <!-- Botón para verificar -->
+    <button id="check-color">Verificar</button>
+
+    <!-- Puntaje -->
+    <div id="score">
+      Puntaje: <span id="score-value">0</span>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

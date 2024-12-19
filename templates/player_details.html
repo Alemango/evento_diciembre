@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es-mx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Details</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="player-details-container">
+        <!-- Información del jugador -->
+        <div class="player-info">
+            <!-- Corregido: Se usa la ruta exacta del avatar desde la base de datos -->
+            <img src="{{ player[2] }}" alt="Avatar" class="player-avatar" id="player-avatar">
+            <!-- Corregido: Se muestra el nombre del jugador desde la base de datos -->
+            <h1 id="player-name">{{ player[1] }}</h1>
+        </div>
+
+        <!-- Nueva sección de Comida -->
+        <div class="food-section">
+            {% if food[0] == 0 and food[1] == 0 %}
+            <h3>Con derecho a Comida</h3>
+            {% elif food[0] == 1 and food[1] == 1 %}
+            <h3>Sin derecho a comida</h3>
+            {% else %}
+            {% for item in food %}
+            <h3>{{ item }}</h3>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Tabla de puntajes por juego -->
+        <div class="scores-section">
+            <h2>Puntajes por Juego</h2>
+            <table class="scores-table">
+                <thead>
+                    <tr>
+                        <th>Juego</th>
+                        <th>Score Total</th>
+                    </tr>
+                </thead>
+                <tbody id="scores-body">
+                    {% for game in scores %}
+                    <tr>
+                        <td>{{ game[0] }}</td>
+                        <td>{{ game[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Enlace para volver al leaderboard -->
+        <div class="back-button">
+            <a href="/" class="button">Marcador Global</a>
+        </div>
+    </div>
+</body>
+<footer>
+    <script>
+        const playerId = "{{ player[0] }}"; // ID del jugador actual
+    
+        // Función para actualizar los datos del jugador
+        async function updatePlayerDetails() {
+            try {
+                const response = await fetch(`/api/player/${playerId}`);
+                const data = await response.json();
+    
+                // Actualizar el nombre y el avatar del jugador
+                document.getElementById('player-name').textContent = data.name;
+                document.getElementById('player-avatar').src = data.avatar;
+    
+                // Actualizar la tabla de puntajes
+                const scoresBody = document.getElementById('scores-body');
+                scoresBody.innerHTML = ''; // Limpiar contenido existente
+    
+                data.scores.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${game.game_id}</td>
+                        <td>${game.total_score}</td>
+                    `;
+                    scoresBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error al actualizar los detalles del jugador:', error);
+            }
+        }
+    
+        // Actualizar los detalles del jugador cada 10 segundos
+        document.addEventListener('DOMContentLoaded', () => {
+            setInterval(updatePlayerDetails, 5000); // Cambia a 5000 para 5 segundos
+        });
+    </script>
+    
+</footer>
+</html>

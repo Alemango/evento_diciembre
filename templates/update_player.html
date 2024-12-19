@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es-mx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualiza Tu Información</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="update-player-container">
+        <h1>Actualiza Tu Información</h1>
+        <form action="/update_player" method="POST" enctype="multipart/form-data">
+            <!-- Campo para ingresar el ID del jugador -->
+            <label for="user_id">ID Participante:</label>
+            <input type="number" id="user_id" name="user_id" required>
+
+            <!-- Campo para ingresar el nombre -->
+            <label for="user_name">Nombre:</label>
+            <input type="text" id="user_name" name="user_name" required>
+
+            <!-- Selección de avatar_id -->
+            <label for="avatar_id">Escoge un Avatar:</label>
+            <div class="avatars">
+                {% for i in range(1, 10) %}
+                <label>
+                    <input type="radio" name="avatar_id" value="/static/img/avatar{{ i }}.png" required>
+                    <img src="/static/img/avatar{{ i }}.png" alt="Avatar {{ i }}" class="avatar-option">
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Botón para enviar el formulario -->
+            <button type="submit">Guardar Información</button>
+        </form>
+    </div>
+</body>
+<footer>
+    <script>
+        // Escuchar el envío del formulario
+        document.querySelector('form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevenir el envío normal
+            const form = event.target;
+
+            // Obtener los valores del formulario
+            const playerId = form.user_id.value;
+            const user_name = form.user_name.value;
+            const avatar_id = form.avatar_id.value;
+
+            // Mostrar los valores en la consola
+            console.log('Player ID:', playerId);
+            console.log('Name:', user_name);
+            console.log('Avatar:', avatar_id);
+
+            // Enviar el formulario usando fetch
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form)
+            })
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    // Redirigir al detalle del jugador si la respuesta es exitosa
+                    window.location.href = `/player/${playerId}`;
+                } else if (status === 403) {
+                    alert('Actualización Rechazada. Este ID ya ha actualizado sus datos.');
+                } else {
+                    alert('Error al actualizar el jugador: ' + (body.message || 'Unknown error.'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al enviar el formulario.');
+            });
+        });
+    </script>
+</footer>
+</html>

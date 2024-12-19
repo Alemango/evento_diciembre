@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es-mx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="leaderboard-container">
+        <h1 class="title">Leaderboard</h1>
+
+        <!-- Destacados: Primeros tres lugares -->
+        <div class="top-three">
+            {% for player in players[:3] %}
+            <div class="place" id="{{ 'first' if loop.index == 1 else 'second' if loop.index == 2 else 'third' }}">
+                <!-- Enlace al detalle del jugador -->
+                <a href="/player/{{ player[0] }}">
+                    <div class="circle">
+                        <img src="{{ player[2] }}" alt="Avatar">
+                        <span class="rank">{{ loop.index }}</span>
+                    </div>
+                </a>
+                <p class="name">{{ player[1] }}</p>
+                <p class="score">{{ player[3] }} pts</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Siguientes lugares -->
+        <div class="others">
+            {% for player in players[3:] %}
+            <div class="place">
+                <!-- Enlace al detalle del jugador -->
+                <a href="/player/{{ player[0] }}">
+                    <div class="circle">
+                        <img src="{{ player[2] }}" alt="Avatar">
+                        <span class="rank">{{ loop.index + 3 }}</span>
+                    </div>
+                </a>
+                <p class="name">{{ player[1] }}</p>
+                <p class="score">{{ player[3] }} pts</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Función para cargar el leaderboard dinámicamente
+async function loadLeaderboard() {
+    try {
+        const response = await fetch('/api/leaderboard');
+        const players = await response.json();
+
+        // Referencias a los contenedores
+        const topThreeContainer = document.querySelector('.top-three');
+        const othersContainer = document.querySelector('.others');
+
+        // Limpiar contenido anterior
+        topThreeContainer.innerHTML = '';
+        othersContainer.innerHTML = '';
+
+        // Generar los primeros tres lugares
+        players.slice(0, 3).forEach((player, index) => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'place';
+            placeDiv.id = ['first', 'second', 'third'][index];
+
+            // Usamos player.player_id para el enlace correcto
+            placeDiv.innerHTML = `
+                <a href="/player/${player.player_id}">
+                    <div class="circle">
+                        <img src="${player.avatar}" alt="Avatar">
+                        <span class="rank">${index + 1}</span>
+                    </div>
+                </a>
+                <p class="name">${player.name}</p>
+                <p class="score">${player.score} pts</p>
+            `;
+            topThreeContainer.appendChild(placeDiv);
+        });
+
+        // Generar los siguientes lugares
+        players.slice(3).forEach((player, index) => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'place';
+
+            // Usamos player.player_id para el enlace correcto
+            placeDiv.innerHTML = `
+                <a href="/player/${player.player_id}">
+                    <div class="circle">
+                        <img src="${player.avatar}" alt="Avatar">
+                        <span class="rank">${index + 4}</span>
+                    </div>
+                </a>
+                <p class="name">${player.name}</p>
+                <p class="score">${player.score} pts</p>
+            `;
+            othersContainer.appendChild(placeDiv);
+        });
+    } catch (error) {
+        console.error('Error al cargar el leaderboard:', error);
+    }
+}
+
+// Cargar leaderboard al cargar la página y cada 10 segundos
+document.addEventListener('DOMContentLoaded', () => {
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 5000); // Actualiza cada 10 segundos
+});
+    </script>
+</body>
+</html>
